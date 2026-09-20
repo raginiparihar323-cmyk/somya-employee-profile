@@ -317,7 +317,7 @@ button {
 .designation {
   margin-top: 28px;
 
-  font-size: 12px;
+  font-size: 25px;
 
   letter-spacing: 3px;
 
@@ -332,7 +332,7 @@ button {
 .company-name {
   margin-top: 7px;
 
-  font-size: 11px;
+  font-size: 22px;
 
   letter-spacing: 2px;
 
@@ -363,7 +363,7 @@ button {
 
   text-decoration: none;
 
-  font-size: 10px;
+  font-size: 18px;
 
   letter-spacing: 2px;
 
@@ -437,7 +437,7 @@ button {
 }
 
 .section-label {
-  font-size: 9px;
+  font-size: 18px;
 
   letter-spacing: 3px;
 
@@ -506,7 +506,7 @@ button {
 }
 
 .info-row span {
-  font-size: 9px;
+  font-size: 16px;
 
   letter-spacing: 2px;
 
@@ -622,7 +622,7 @@ button {
 }
 
 .social-link small {
-  font-size: 8px;
+  font-size: 18px;
 
   letter-spacing: 2px;
 
@@ -632,7 +632,7 @@ button {
 }
 
 .social-link span {
-  font-size: 12px;
+  font-size: 18px;
 
   font-weight: 600;
 
@@ -751,7 +751,7 @@ button {
 }
 
 .visit-website-content small {
-  font-size: 8px;
+  font-size: 18px;
 
   letter-spacing: 3px;
 }
@@ -842,7 +842,7 @@ button {
 }
 
 .verification-text strong {
-  font-size: 11px;
+  font-size: 18px;
 
   letter-spacing: 1.5px;
 
@@ -906,7 +906,7 @@ footer {
 }
 
 footer h3 {
-  font-size: 14px;
+  font-size: 25px;
 
   letter-spacing: 3px;
 
@@ -917,7 +917,7 @@ footer h3 {
 }
 
 footer p {
-  font-size: 8px;
+  font-size: 17px;
 
   letter-spacing: 2px;
 
@@ -930,7 +930,7 @@ footer p {
 }
 
 footer small {
-  font-size: 8px;
+  font-size: 15px;
 
   color: #A8998B;
 
