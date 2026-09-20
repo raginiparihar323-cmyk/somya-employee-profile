@@ -28,22 +28,36 @@ export default function Home() {
       {/* ================= HEADER ================= */}
 
       <header className="header">
-        <div className="header-logo">
-          <img
-            src="/somya-logo.jpeg"
-            alt="Somya Innovations"
-          />
+
+        <div className="header-brand">
+
+          {/* LEFT LOGO */}
+          <div className="header-logo">
+            <img
+              src="/somyain.jpeg"
+              alt="Somya Innovations Logo"
+            />
+          </div>
+
+          {/* RIGHT BRAND NAME */}
+          <div className="header-brand-name">
+            <div className="brand-somya">
+              SOMYA
+            </div>
+
+            <div className="brand-innovations">
+              INNOVATIONS
+            </div>
+          </div>
+
         </div>
+
       </header>
 
 
       {/* ================= HERO ================= */}
 
       <section className="hero">
-
-        <p className="small-title">
-          SOMYA INNOVATIONS
-        </p>
 
         <h1>
           NISTHA
@@ -88,6 +102,7 @@ export default function Home() {
 
       </section>
 
+
       {/* ================= CONNECT ================= */}
 
       <section
@@ -103,27 +118,20 @@ export default function Home() {
 
           <div className="links">
 
-
-            {/* LINKEDIN */}
-
             <a
               href="https://www.linkedin.com/in/nistha-jain-577ab0340/"
               target="_blank"
               rel="noopener noreferrer"
               className="social-link"
             >
-
               <div>
                 <small>PROFESSIONAL</small>
                 <span>LINKEDIN</span>
               </div>
 
               <b>↗</b>
-
             </a>
 
-
-            {/* INSTAGRAM */}
 
             <a
               href="https://www.instagram.com/niissssh/"
@@ -131,27 +139,21 @@ export default function Home() {
               rel="noopener noreferrer"
               className="social-link"
             >
-
               <div>
                 <small>SOCIAL</small>
                 <span>INSTAGRAM</span>
               </div>
 
               <b>↗</b>
-
             </a>
 
-
-            {/* EMAIL */}
 
             <button
               type="button"
               className="social-link contact-button"
               onClick={() => copyText(email, "EMAIL")}
             >
-
               <div>
-
                 <small>
                   {copied === "EMAIL"
                     ? "COPIED"
@@ -161,7 +163,6 @@ export default function Home() {
                 <span>
                   {email}
                 </span>
-
               </div>
 
               <b>
@@ -169,30 +170,20 @@ export default function Home() {
                   ? "✓"
                   : "↗"}
               </b>
-
             </button>
 
-
-            {/* PHONE */}
 
             <button
               type="button"
               className="social-link contact-button"
               onClick={() => {
-
-                copyText(
-                  phoneNumber,
-                  "PHONE"
-                );
+                copyText(phoneNumber, "PHONE");
 
                 window.location.href =
                   `tel:+91${phoneNumber}`;
-
               }}
             >
-
               <div>
-
                 <small>
                   {copied === "PHONE"
                     ? "COPIED"
@@ -202,7 +193,6 @@ export default function Home() {
                 <span>
                   +91 {phoneNumber}
                 </span>
-
               </div>
 
               <b>
@@ -210,7 +200,6 @@ export default function Home() {
                   ? "✓"
                   : "↗"}
               </b>
-
             </button>
 
           </div>
@@ -218,6 +207,7 @@ export default function Home() {
         </div>
 
       </section>
+
 
       {/* ================= PROFESSIONAL INFORMATION ================= */}
 
