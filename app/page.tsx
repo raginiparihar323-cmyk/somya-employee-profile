@@ -78,9 +78,7 @@ export default function Home() {
           INNOVATION EXECUTIVE
         </p>
 
-        <p className="company-name">
-          SOMYA INNOVATIONS
-        </p>
+       
 
         <div className="hero-buttons">
 
@@ -187,7 +185,7 @@ export default function Home() {
                 <small>
                   {copied === "PHONE"
                     ? "COPIED"
-                    : "PHONE"}
+                    : "PHONE NUMBER"}
                 </small>
 
                 <span>
@@ -300,9 +298,8 @@ export default function Home() {
             </strong>
 
             <p>
-              This is an official professional
-              profile of Somya Innovations.
-            </p>
+  This profile represents a verified member of Somya Innovations.
+</p>
 
           </div>
 
