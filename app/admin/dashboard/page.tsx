@@ -26,11 +26,13 @@ type Employee = {
   show_email: boolean;
   show_phone: boolean;
   status: "active" | "inactive";
+  verified: boolean;
   social_links: SocialLink[];
 };
 
 export default function AdminDashboard() {
   const [showForm, setShowForm] = useState(false);
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [qrEmployee, setQrEmployee] =
     useState<Employee | null>(null);
@@ -51,6 +53,7 @@ export default function AdminDashboard() {
     show_email: true,
     show_phone: true,
     status: "active",
+    verified: true,
     social_links: [],
   });
 
@@ -77,7 +80,14 @@ export default function AdminDashboard() {
 
         const data = await response.json();
 
-        setEmployees(data);
+        const normalizedEmployees = data.map(
+          (employee: Employee) => ({
+            ...employee,
+            verified: employee.verified !== false,
+          })
+        );
+
+        setEmployees(normalizedEmployees);
       } catch (error) {
         console.error(
           "Failed to load employees:",
@@ -191,10 +201,24 @@ export default function AdminDashboard() {
       show_email: true,
       show_phone: true,
       status: "active",
+      verified: true,
       social_links: [],
     });
 
     setSocialLinks([]);
+    setEditingSlug(null);
+  };
+
+  /* ================= EDIT EMPLOYEE ================= */
+
+  const editEmployee = (employee: Employee) => {
+    setForm({
+      ...employee,
+      verified: employee.verified !== false,
+    });
+    setSocialLinks(employee.social_links || []);
+    setEditingSlug(employee.slug);
+    setShowForm(true);
   };
 
   /* ================= SAVE EMPLOYEE ================= */
@@ -221,7 +245,7 @@ export default function AdminDashboard() {
       return;
     }
 
-    const newEmployee: Employee = {
+    const employeeData: Employee = {
       ...form,
       name: form.name.trim(),
       slug: cleanSlug,
@@ -229,22 +253,62 @@ export default function AdminDashboard() {
     };
 
     try {
+      /* ================= EDIT ================= */
+
+      if (editingSlug) {
+        const response = await fetch(
+          "/api/employees",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...employeeData,
+              original_slug: editingSlug,
+            }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          alert(
+            result.error ||
+              "Could not update employee."
+          );
+          return;
+        }
+
+        setEmployees((previous) =>
+          previous.map((employee) =>
+            employee.slug === editingSlug
+              ? result
+              : employee
+          )
+        );
+
+        resetForm();
+        setShowForm(false);
+
+        alert("Employee updated successfully.");
+        return;
+      }
+
+      /* ================= ADD ================= */
+
       const response = await fetch(
         "/api/employees",
         {
           method: "POST",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(
-            newEmployee
-          ),
+          body: JSON.stringify(employeeData),
         }
       );
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
         alert(
@@ -259,13 +323,9 @@ export default function AdminDashboard() {
         result,
       ];
 
-      setEmployees(
-        updatedEmployees
-      );
-
+      setEmployees(updatedEmployees);
       resetForm();
       setShowForm(false);
-
       setQrEmployee(result);
 
     } catch (error) {
@@ -355,9 +415,10 @@ export default function AdminDashboard() {
 
         <button
           style={styles.addButton}
-          onClick={() =>
-            setShowForm(true)
-          }
+          onClick={() => {
+            resetForm();
+            setShowForm(true);
+          }}
         >
           + ADD EMPLOYEE
         </button>
@@ -438,9 +499,10 @@ export default function AdminDashboard() {
 
             <button
               style={styles.addButton}
-              onClick={() =>
-                setShowForm(true)
-              }
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
             >
               + ADD FIRST EMPLOYEE
             </button>
@@ -530,6 +592,18 @@ export default function AdminDashboard() {
                   </a>
 
 
+                  {/* EDIT */}
+
+                  <button
+                    style={styles.editButton}
+                    onClick={() =>
+                      editEmployee(employee)
+                    }
+                  >
+                    EDIT
+                  </button>
+
+
                   {/* QR */}
 
                   <button
@@ -590,20 +664,25 @@ export default function AdminDashboard() {
               <div>
 
                 <h2>
-                  Add New Employee
+                  {editingSlug
+                    ? "Edit Employee"
+                    : "Add New Employee"}
                 </h2>
 
                 <p>
-                  Enter employee information
+                  {editingSlug
+                    ? "Update employee information"
+                    : "Enter employee information"}
                 </p>
 
               </div>
 
               <button
                 style={styles.close}
-                onClick={() =>
-                  setShowForm(false)
-                }
+                onClick={() => {
+                  resetForm();
+                  setShowForm(false);
+                }}
               >
                 ×
               </button>
@@ -1142,6 +1221,42 @@ export default function AdminDashboard() {
               )}
 
 
+              {/* VERIFIED EMPLOYEE */}
+
+              <h3
+                style={
+                  styles.formSection
+                }
+              >
+                Employee Verification
+              </h3>
+
+              <label
+                style={styles.checkboxRow}
+              >
+                <input
+                  type="checkbox"
+                  checked={form.verified !== false}
+                  onChange={(e) =>
+                    setForm((previous) => ({
+                      ...previous,
+                      verified: e.target.checked,
+                    }))
+                  }
+                />
+
+                <span>
+                  Verified Employee
+                </span>
+              </label>
+
+              <p
+                style={styles.helperText}
+              >
+                If enabled, the Verified Employee section will appear on the employee profile.
+              </p>
+
+
               {/* STATUS */}
 
               <h3
@@ -1185,8 +1300,23 @@ export default function AdminDashboard() {
                   styles.saveButton
                 }
               >
-                SAVE EMPLOYEE
+                {editingSlug
+                  ? "UPDATE EMPLOYEE"
+                  : "SAVE EMPLOYEE"}
               </button>
+
+              {editingSlug && (
+                <button
+                  type="button"
+                  style={styles.cancelButton}
+                  onClick={() => {
+                    resetForm();
+                    setShowForm(false);
+                  }}
+                >
+                  CANCEL
+                </button>
+              )}
 
             </form>
 
@@ -1413,6 +1543,16 @@ const styles: Record<
     cursor: "pointer",
   },
 
+  editButton: {
+    padding: "8px 12px",
+    background: "#E8DDD1",
+    color: "#1A1A1A",
+    border: "1px solid #B89F7A",
+    fontSize: "12px",
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+
   qrButton: {
     padding: "8px 12px",
     background: "#B89F7A",
@@ -1553,6 +1693,23 @@ const styles: Record<
     fontSize: "14px",
   },
 
+  checkboxRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginTop: "10px",
+    fontSize: "14px",
+    cursor: "pointer",
+  },
+
+  helperText: {
+    marginTop: "8px",
+    marginBottom: "0",
+    fontSize: "12px",
+    color: "#76695F",
+    lineHeight: 1.5,
+  },
+
   socialHeader: {
     display: "flex",
     justifyContent:
@@ -1613,6 +1770,18 @@ const styles: Record<
     color: "#777",
     wordBreak: "break-all",
     marginTop: "15px",
+  },
+
+  cancelButton: {
+    width: "100%",
+    marginTop: "10px",
+    padding: "16px",
+    background: "#E9E4DE",
+    color: "#1A1A1A",
+    border: "1px solid #C8B9AA",
+    fontWeight: 700,
+    letterSpacing: "1px",
+    cursor: "pointer",
   },
 
   saveButton: {

@@ -26,6 +26,7 @@ type Employee = {
   show_email: boolean;
   show_phone: boolean;
   status: "active" | "inactive";
+  verified?: boolean;
   social_links: SocialLink[];
 };
 
@@ -550,7 +551,8 @@ export default function Home() {
 
       {/* ================= VERIFIED ================= */}
 
-      <section className="verification-section">
+      {employee.verified !== false && (
+        <section className="verification-section">
 
         <div className="verification-inner">
 
@@ -573,7 +575,8 @@ export default function Home() {
 
         </div>
 
-      </section>
+        </section>
+      )}
 
 
       {/* ================= FOOTER ================= */}

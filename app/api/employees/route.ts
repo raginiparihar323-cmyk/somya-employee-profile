@@ -16,13 +16,22 @@ async function readEmployees() {
       return [];
     }
 
-    return JSON.parse(file);
+    const employees = JSON.parse(file);
+
+    return employees.map(
+      (employee: Record<string, unknown>) => ({
+        ...employee,
+        verified: employee.verified !== false,
+      })
+    );
   } catch {
     return [];
   }
 }
 
-async function writeEmployees(employees: unknown[]) {
+async function writeEmployees(
+  employees: unknown[]
+) {
   await fs.writeFile(
     filePath,
     JSON.stringify(employees, null, 2),
@@ -31,13 +40,14 @@ async function writeEmployees(employees: unknown[]) {
 }
 
 // GET employees
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest
+) {
   const employees = await readEmployees();
 
   const slug =
     request.nextUrl.searchParams.get("slug");
 
-  // Get one employee
   if (slug) {
     const employee = employees.find(
       (item: { slug: string }) =>
@@ -54,7 +64,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(employee);
   }
 
-  // Get all employees
   return NextResponse.json(employees);
 }
 
@@ -92,23 +101,108 @@ export async function POST(
       );
     }
 
-    employees.push(employee);
+    const employeeToSave = {
+      ...employee,
+      verified: employee.verified !== false,
+    };
+
+    employees.push(employeeToSave);
 
     await writeEmployees(employees);
 
     return NextResponse.json(
-      employee,
+      employeeToSave,
       { status: 201 }
     );
-
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      {
-        error:
-          "Could not save employee.",
-      },
+      { error: "Could not save employee." },
+      { status: 500 }
+    );
+  }
+}
+
+// EDIT employee
+export async function PUT(
+  request: NextRequest
+) {
+  try {
+    const updatedEmployee =
+      await request.json();
+
+    const originalSlug =
+      updatedEmployee.original_slug;
+
+    if (
+      !originalSlug ||
+      !updatedEmployee.name ||
+      !updatedEmployee.slug
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Employee name and slug are required.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const employees = await readEmployees();
+
+    const index = employees.findIndex(
+      (item: { slug: string }) =>
+        item.slug === originalSlug
+    );
+
+    if (index === -1) {
+      return NextResponse.json(
+        { error: "Employee not found." },
+        { status: 404 }
+      );
+    }
+
+    const duplicate = employees.some(
+      (item: { slug: string }, i: number) =>
+        i !== index &&
+        item.slug === updatedEmployee.slug
+    );
+
+    if (duplicate) {
+      return NextResponse.json(
+        {
+          error:
+            "Another employee already uses this slug.",
+        },
+        { status: 409 }
+      );
+    }
+
+    const {
+      original_slug,
+      ...employeeWithoutOriginalSlug
+    } = updatedEmployee;
+
+    const employeeToSave = {
+      ...employeeWithoutOriginalSlug,
+      verified:
+        employeeWithoutOriginalSlug.verified !== false,
+    };
+
+    employees[index] = employeeToSave;
+
+    await writeEmployees(employees);
+
+    return NextResponse.json(
+      employeeToSave,
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      { error: "Could not update employee." },
       { status: 500 }
     );
   }
@@ -124,9 +218,7 @@ export async function DELETE(
 
     if (!slug) {
       return NextResponse.json(
-        {
-          error: "Slug is required.",
-        },
+        { error: "Slug is required." },
         { status: 400 }
       );
     }
@@ -139,22 +231,16 @@ export async function DELETE(
           item.slug !== slug
       );
 
-    await writeEmployees(
-      updatedEmployees
-    );
+    await writeEmployees(updatedEmployees);
 
     return NextResponse.json({
       success: true,
     });
-
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      {
-        error:
-          "Could not delete employee.",
-      },
+      { error: "Could not delete employee." },
       { status: 500 }
     );
   }
