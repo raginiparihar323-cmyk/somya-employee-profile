@@ -397,11 +397,11 @@ export default function AdminDashboard() {
   };
 
   return (
-    <main style={styles.page}>
+    <main className="admin-page" style={styles.page}>
 
       {/* ================= HEADER ================= */}
 
-      <header style={styles.header}>
+      <header className="admin-header" style={styles.header}>
 
         <div>
           <p style={styles.company}>
@@ -414,6 +414,7 @@ export default function AdminDashboard() {
         </div>
 
         <button
+          className="admin-add-button"
           style={styles.addButton}
           onClick={() => {
             resetForm();
@@ -428,7 +429,7 @@ export default function AdminDashboard() {
 
       {/* ================= STATS ================= */}
 
-      <section style={styles.stats}>
+      <section className="admin-stats" style={styles.stats}>
 
         <div style={styles.statCard}>
           <span>
@@ -517,6 +518,7 @@ export default function AdminDashboard() {
               (employee) => (
 
                 <div
+                  className="admin-employee-card"
                   key={employee.slug}
                   style={
                     styles.employeeCard
@@ -578,62 +580,43 @@ export default function AdminDashboard() {
                   </span>
 
 
-                  {/* VIEW */}
+                  <div className="admin-employee-actions">
 
-                  <a
-                    href={`/team/${employee.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={
-                      styles.viewButton
-                    }
-                  >
-                    VIEW
-                  </a>
+                    {/* VIEW */}
+                    <a
+                      href={`/team/${employee.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={styles.viewButton}
+                    >
+                      VIEW
+                    </a>
 
+                    {/* EDIT */}
+                    <button
+                      style={styles.editButton}
+                      onClick={() => editEmployee(employee)}
+                    >
+                      EDIT
+                    </button>
 
-                  {/* EDIT */}
+                    {/* QR */}
+                    <button
+                      style={styles.qrButton}
+                      onClick={() => setQrEmployee(employee)}
+                    >
+                      QR
+                    </button>
 
-                  <button
-                    style={styles.editButton}
-                    onClick={() =>
-                      editEmployee(employee)
-                    }
-                  >
-                    EDIT
-                  </button>
+                    {/* DELETE */}
+                    <button
+                      style={styles.deleteButton}
+                      onClick={() => deleteEmployee(employee.slug)}
+                    >
+                      DELETE
+                    </button>
 
-
-                  {/* QR */}
-
-                  <button
-                    style={
-                      styles.qrButton
-                    }
-                    onClick={() =>
-                      setQrEmployee(
-                        employee
-                      )
-                    }
-                  >
-                    QR
-                  </button>
-
-
-                  {/* DELETE */}
-
-                  <button
-                    style={
-                      styles.deleteButton
-                    }
-                    onClick={() =>
-                      deleteEmployee(
-                        employee.slug
-                      )
-                    }
-                  >
-                    DELETE
-                  </button>
+                  </div>
 
                 </div>
 
@@ -653,7 +636,7 @@ export default function AdminDashboard() {
 
         <div style={styles.overlay}>
 
-          <div style={styles.modal}>
+          <div className="admin-modal" style={styles.modal}>
 
             <div
               style={
@@ -1118,6 +1101,7 @@ export default function AdminDashboard() {
                 (link, index) => (
 
                   <div
+                    className="admin-social-row"
                     key={index}
                     style={
                       styles.socialRow
@@ -1414,6 +1398,269 @@ export default function AdminDashboard() {
         </div>
 
       )}
+
+
+        <style>{`
+          .admin-page {
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+          }
+
+          .admin-header,
+          .admin-stats,
+          .admin-card {
+            width: 100%;
+          }
+
+          .admin-employee-card {
+            min-width: 0;
+          }
+
+          .admin-employee-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+          }
+
+          .admin-modal {
+            box-sizing: border-box;
+          }
+
+          .admin-form-grid {
+            min-width: 0;
+          }
+
+          .admin-contact-fields {
+            min-width: 0;
+          }
+
+          .admin-phone-field {
+            min-width: 0;
+          }
+
+          .admin-social-row {
+            min-width: 0;
+          }
+
+          .admin-social-row > * {
+            min-width: 0;
+          }
+
+          .admin-qr-modal {
+            box-sizing: border-box;
+          }
+
+          @media (max-width: 800px) {
+            .admin-page {
+              padding: 24px !important;
+            }
+
+            .admin-header {
+              align-items: flex-start !important;
+              gap: 20px !important;
+            }
+
+            .admin-header h1 {
+              font-size: 32px !important;
+              line-height: 1.1 !important;
+            }
+
+            .admin-stats {
+              grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+
+            .admin-card {
+              padding: 22px !important;
+            }
+
+            .admin-employee-card {
+              flex-wrap: wrap !important;
+            }
+
+            .admin-employee-actions {
+              width: 100%;
+              display: grid;
+              grid-template-columns: repeat(4, minmax(0, 1fr));
+              margin-top: 4px;
+            }
+
+            .admin-employee-actions a,
+            .admin-employee-actions button {
+              width: 100% !important;
+              min-width: 0 !important;
+              text-align: center !important;
+            }
+
+            .admin-modal {
+              max-width: 100% !important;
+              padding: 25px !important;
+            }
+
+            .admin-form-grid {
+              grid-template-columns: 1fr !important;
+            }
+
+            .admin-social-row {
+              grid-template-columns: 150px minmax(0, 1fr) 40px !important;
+            }
+          }
+
+          @media (max-width: 560px) {
+            .admin-page {
+              padding: 16px !important;
+            }
+
+            .admin-header {
+              flex-direction: column !important;
+              align-items: stretch !important;
+              margin-bottom: 24px !important;
+            }
+
+            .admin-header h1 {
+              font-size: 28px !important;
+            }
+
+            .admin-header .admin-add-button {
+              width: 100%;
+            }
+
+            .admin-stats {
+              grid-template-columns: 1fr !important;
+              gap: 10px !important;
+            }
+
+            .admin-stats > div {
+              padding: 17px !important;
+            }
+
+            .admin-card {
+              padding: 16px !important;
+            }
+
+            .admin-card h2 {
+              font-size: 22px;
+            }
+
+            .admin-employee-card {
+              display: grid !important;
+              grid-template-columns: 58px minmax(0, 1fr) auto;
+              align-items: center !important;
+              gap: 10px !important;
+            }
+
+            .admin-employee-card > img {
+              grid-column: 1;
+              grid-row: 1;
+            }
+
+            .admin-employee-card > div:not(.admin-employee-actions) {
+              grid-column: 2;
+              grid-row: 1;
+              min-width: 0;
+            }
+
+            .admin-employee-card > span {
+              grid-column: 3;
+              grid-row: 1;
+              align-self: start;
+            }
+
+            .admin-employee-actions {
+              grid-column: 1 / -1;
+              grid-row: 2;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              width: 100%;
+            }
+
+            .admin-employee-actions a,
+            .admin-employee-actions button {
+              padding: 10px 8px !important;
+              font-size: 11px !important;
+            }
+
+            .admin-modal {
+              width: 100% !important;
+              max-height: 94vh !important;
+              padding: 18px !important;
+            }
+
+            .admin-modal h2 {
+              font-size: 23px;
+            }
+
+            .admin-social-header {
+              gap: 10px;
+              align-items: flex-start !important;
+            }
+
+            .admin-social-row {
+              grid-template-columns: 1fr !important;
+              gap: 8px !important;
+            }
+
+            .admin-social-row button {
+              min-height: 42px;
+            }
+
+            .admin-phone-field {
+              display: flex !important;
+              flex-direction: column !important;
+              align-items: stretch !important;
+            }
+
+            .admin-phone-field select {
+              width: 100% !important;
+              min-width: 0 !important;
+              border-right: none !important;
+              border-bottom: 1px solid #C8B9AA !important;
+              height: 46px !important;
+            }
+
+            .admin-phone-field input {
+              width: 100% !important;
+              min-width: 0 !important;
+            }
+
+            .admin-qr-modal {
+              width: 100% !important;
+              max-width: 360px !important;
+              padding: 22px !important;
+            }
+
+            .admin-qr-modal svg {
+              width: min(220px, 70vw) !important;
+              height: auto !important;
+            }
+          }
+
+          @media (max-width: 380px) {
+            .admin-page {
+              padding: 12px !important;
+            }
+
+            .admin-header h1 {
+              font-size: 25px !important;
+            }
+
+            .admin-card {
+              padding: 13px !important;
+            }
+
+            .admin-employee-card {
+              padding: 12px !important;
+            }
+
+            .admin-employee-actions {
+              grid-template-columns: 1fr 1fr !important;
+            }
+
+            .admin-modal {
+              padding: 14px !important;
+            }
+          }
+        `}</style>
 
     </main>
   );

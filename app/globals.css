@@ -157,13 +157,13 @@ button {
 .brand-somya {
   font-family: "Playfair Display", serif;
 
-  font-size: 44px;
+  font-size: 60px;
 
   line-height: 0.9;
 
   font-weight: 500;
 
-  letter-spacing: 4px;
+  letter-spacing: 5px;
 
   color: #1A1A1A;
 
@@ -180,7 +180,7 @@ button {
 .brand-innovations {
   font-family: "DM Sans", sans-serif;
 
-  font-size: 11px;
+  font-size: 35px;
 
   line-height: 1;
 
@@ -203,7 +203,7 @@ button {
 ========================================================= */
 
 .hero {
-  min-height: 680px;
+  min-height: 600px;
 
   padding: 35px 28px 55px;
 
@@ -317,7 +317,7 @@ button {
 .designation {
   margin-top: 28px;
 
-  font-size: 12px;
+  font-size: 25px;
 
   letter-spacing: 3px;
 
@@ -332,7 +332,7 @@ button {
 .company-name {
   margin-top: 7px;
 
-  font-size: 11px;
+  font-size: 20px;
 
   letter-spacing: 2px;
 
@@ -363,7 +363,7 @@ button {
 
   text-decoration: none;
 
-  font-size: 10px;
+  font-size: 15px;
 
   letter-spacing: 2px;
 
@@ -437,7 +437,7 @@ button {
 }
 
 .section-label {
-  font-size: 9px;
+  font-size: 16px;
 
   letter-spacing: 3px;
 
@@ -506,7 +506,7 @@ button {
 }
 
 .info-row span {
-  font-size: 9px;
+  font-size: 14px;
 
   letter-spacing: 2px;
 
@@ -516,7 +516,7 @@ button {
 }
 
 .info-row strong {
-  font-size: 13px;
+  font-size: 14px;
 
   color: #000000 !important;
 
@@ -622,7 +622,7 @@ button {
 }
 
 .social-link small {
-  font-size: 8px;
+  font-size: 16px;
 
   letter-spacing: 2px;
 
@@ -632,7 +632,7 @@ button {
 }
 
 .social-link span {
-  font-size: 12px;
+  font-size: 14px;
 
   font-weight: 600;
 
@@ -640,7 +640,7 @@ button {
 }
 
 .social-link b {
-  font-size: 21px;
+  font-size: 24px;
 
   font-weight: 400;
 
@@ -751,7 +751,7 @@ button {
 }
 
 .visit-website-content small {
-  font-size: 8px;
+  font-size: 18px;
 
   letter-spacing: 3px;
 }
@@ -827,7 +827,7 @@ button {
 
   justify-content: center;
 
-  font-size: 18px;
+  font-size: 26px;
 
   animation:
     checkPop 0.7s cubic-bezier(.34,1.56,.64,1) 0.5s both;
@@ -842,7 +842,7 @@ button {
 }
 
 .verification-text strong {
-  font-size: 11px;
+  font-size: 18px;
 
   letter-spacing: 1.5px;
 
@@ -850,7 +850,7 @@ button {
 }
 
 .verification-text p {
-  font-size: 10px;
+  font-size: 14px;
 
   line-height: 1.5;
 
@@ -906,7 +906,7 @@ footer {
 }
 
 footer h3 {
-  font-size: 14px;
+  font-size: 24px;
 
   letter-spacing: 3px;
 
@@ -917,8 +917,7 @@ footer h3 {
 }
 
 footer p {
-  font-size: 8px;
-
+  font-size: 14px;
   letter-spacing: 2px;
 
   color: #CDBBA7;
@@ -930,7 +929,7 @@ footer p {
 }
 
 footer small {
-  font-size: 8px;
+  font-size: 13px;
 
   color: #A8998B;
 
