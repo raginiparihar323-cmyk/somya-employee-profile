@@ -719,7 +719,7 @@ export default function AdminDashboard() {
                   onChange={
                     handleChange
                   }
-                  required
+                  
                   style={
                     styles.input
                   }
