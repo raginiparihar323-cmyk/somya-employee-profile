@@ -157,7 +157,7 @@ button {
 .brand-somya {
   font-family: "Playfair Display", serif;
 
-  font-size: 70px;
+  font-size: 44px;
 
   line-height: 0.9;
 
@@ -180,7 +180,7 @@ button {
 .brand-innovations {
   font-family: "DM Sans", sans-serif;
 
-  font-size: 30px;
+  font-size: 11px;
 
   line-height: 1;
 
@@ -1276,5 +1276,386 @@ footer small {
     scroll-behavior: auto !important;
 
     transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE OVERRIDES
+   Keeps the same design while adapting to all screens.
+========================================================= */
+
+/* Prevent horizontal overflow on every device */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.profile-page {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+}
+
+/* Tablets and larger screens */
+@media (min-width: 600px) {
+  .profile-page {
+    max-width: 900px;
+  }
+
+  .header {
+    min-height: 150px;
+    padding: 20px 40px;
+  }
+
+  .header-brand {
+    gap: 24px;
+  }
+
+  .header-logo,
+  .header-logo img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 55px 50px 75px;
+  }
+
+  .hero h1 {
+    font-size: clamp(58px, 9vw, 86px);
+  }
+
+  .profile-photo {
+    width: 260px;
+    height: 320px;
+  }
+
+  .section {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .connect-section,
+  .dark-section,
+  .visit-website-section,
+  .verification-section,
+  footer {
+    width: 100%;
+  }
+}
+
+/* Desktop */
+@media (min-width: 901px) {
+  .profile-page {
+    max-width: 1100px;
+  }
+
+  .header {
+    min-height: 165px;
+    padding: 25px 55px;
+  }
+
+  .header-logo,
+  .header-logo img {
+    width: 110px;
+    height: 110px;
+  }
+
+  .brand-somya {
+    font-size: 50px;
+  }
+
+  .brand-innovations {
+    font-size: 12px;
+  }
+
+  .hero {
+    padding: 65px 70px 85px;
+  }
+
+  .hero h1 {
+    font-size: clamp(65px, 7vw, 100px);
+  }
+
+  .profile-photo {
+    width: 280px;
+    height: 345px;
+  }
+
+  .section {
+    max-width: 820px;
+  }
+}
+
+/* Normal phones */
+@media (max-width: 599px) {
+  .header {
+    width: 100%;
+    height: auto;
+    min-height: 125px;
+    padding: 15px 18px;
+  }
+
+  .header-brand {
+    width: 100%;
+    gap: 14px;
+  }
+
+  .header-logo,
+  .header-logo img {
+    width: 72px;
+    height: 72px;
+  }
+
+  .header-logo img {
+    object-fit: contain;
+    transform: scale(1.05);
+  }
+
+  .header-logo:hover img {
+    transform: scale(1.08);
+  }
+
+  .header-brand-name {
+    min-width: 0;
+    gap: 5px;
+  }
+
+  .brand-somya {
+    font-size: clamp(28px, 9vw, 40px);
+    letter-spacing: 2px;
+    line-height: 0.95;
+  }
+
+  .brand-innovations {
+    font-size: clamp(8px, 2.5vw, 11px);
+    letter-spacing: clamp(3px, 1.2vw, 5px);
+    padding-left: 2px;
+  }
+
+  .hero {
+    width: 100%;
+    min-height: auto;
+    padding: 35px 18px 50px;
+  }
+
+  .hero h1 {
+    width: 100%;
+    font-size: clamp(42px, 14vw, 68px);
+    line-height: 0.94;
+    letter-spacing: -1.5px;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-line {
+    margin: 22px 0 28px;
+  }
+
+  .profile-photo {
+    width: min(215px, 72vw);
+    height: min(265px, 88vw);
+    max-height: 265px;
+  }
+
+  .designation {
+    max-width: 100%;
+    font-size: 11px;
+    letter-spacing: 2px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .hero-buttons {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 26px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    padding: 14px 16px;
+  }
+
+  .section {
+    width: 100%;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    line-height: 1.5;
+  }
+
+  .links {
+    width: 100%;
+  }
+
+  .social-link {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .social-link span {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .info-card {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .info-row {
+    gap: 15px;
+  }
+
+  .info-row span {
+    flex: 0 0 38%;
+  }
+
+  .info-row strong {
+    min-width: 0;
+    max-width: 62%;
+    text-align: right;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .visit-website-button {
+    width: calc(100% - 36px);
+    max-width: 760px;
+  }
+
+  .verification-inner {
+    width: calc(100% - 36px);
+  }
+
+  .verification-text {
+    min-width: 0;
+  }
+
+  .verification-text p {
+    overflow-wrap: anywhere;
+  }
+
+  footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  footer h3,
+  footer p,
+  footer small {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .header {
+    min-height: 112px;
+    padding: 12px 14px;
+  }
+
+  .header-brand {
+    gap: 11px;
+  }
+
+  .header-logo,
+  .header-logo img {
+    width: 62px;
+    height: 62px;
+  }
+
+  .brand-somya {
+    font-size: 27px;
+    letter-spacing: 1.5px;
+  }
+
+  .brand-innovations {
+    font-size: 7px;
+    letter-spacing: 2.8px;
+  }
+
+  .hero {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .hero h1 {
+    font-size: clamp(38px, 13vw, 54px);
+  }
+
+  .profile-photo {
+    width: min(195px, 70vw);
+    height: min(240px, 86vw);
+  }
+
+  .section {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .info-row {
+    gap: 10px;
+  }
+
+  .info-row span {
+    flex-basis: 40%;
+    font-size: 9px;
+  }
+
+  .info-row strong {
+    max-width: 60%;
+    font-size: 12px;
+  }
+}
+
+/* Landscape phones */
+@media (max-height: 500px) and (orientation: landscape) {
+  .header {
+    min-height: 95px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .header-logo,
+  .header-logo img {
+    width: 62px;
+    height: 62px;
+  }
+
+  .hero {
+    padding-top: 25px;
+    padding-bottom: 40px;
+  }
+
+  .profile-photo {
+    width: 175px;
+    height: 215px;
+  }
+}
+
+/* Accessibility: don't force animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
