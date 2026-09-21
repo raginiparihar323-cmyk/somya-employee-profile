@@ -62,7 +62,6 @@ export default function Home() {
         const data = await response.json();
 
         setEmployee(data);
-
       } catch (error) {
         console.error(
           "Failed to load employee:",
@@ -70,7 +69,6 @@ export default function Home() {
         );
 
         setEmployee(null);
-
       } finally {
         setLoading(false);
       }
@@ -93,7 +91,6 @@ export default function Home() {
       setTimeout(() => {
         setCopied("");
       }, 1800);
-
     } catch {
       window.prompt(
         `Copy ${type}:`,
@@ -175,11 +172,25 @@ export default function Home() {
       {/* ================= HEADER ================= */}
 
       <header className="header">
-        <div className="header-logo">
-          <img
-            src="/somya-logo.jpeg"
-            alt="Somya Innovations"
-          />
+        <div className="header-brand">
+
+          <div className="header-logo">
+            <img
+              src="/somyain.jpeg"
+              alt="Somya Innovations"
+            />
+          </div>
+
+          <div className="header-brand-name">
+            <span className="brand-somya">
+              SOMYA
+            </span>
+
+            <span className="brand-innovations">
+              INNOVATIONS
+            </span>
+          </div>
+
         </div>
       </header>
 
@@ -187,10 +198,6 @@ export default function Home() {
       {/* ================= HERO ================= */}
 
       <section className="hero">
-
-        <p className="small-title">
-          SOMYA INNOVATIONS
-        </p>
 
         <h1>
           {employee.name
@@ -458,7 +465,7 @@ export default function Home() {
               </span>
 
               <strong>
-                {employee.department}
+                {employee.department || "—"}
               </strong>
             </div>
 
@@ -554,26 +561,26 @@ export default function Home() {
       {employee.verified !== false && (
         <section className="verification-section">
 
-        <div className="verification-inner">
+          <div className="verification-inner">
 
-          <div className="check">
-            ✓
+            <div className="check">
+              ✓
+            </div>
+
+            <div className="verification-text">
+
+              <strong>
+                VERIFIED EMPLOYEE
+              </strong>
+
+              <p>
+                This profile represents a verified
+                member of Somya Innovations.
+              </p>
+
+            </div>
+
           </div>
-
-          <div className="verification-text">
-
-            <strong>
-              VERIFIED EMPLOYEE
-            </strong>
-
-            <p>
-              This profile represents a verified
-              member of Somya Innovations.
-            </p>
-
-          </div>
-
-        </div>
 
         </section>
       )}
@@ -585,7 +592,7 @@ export default function Home() {
 
         <div className="footer-logo">
           <img
-            src="/somya-logo.jpeg"
+            src="/somyain.jpeg"
             alt="Somya Innovations"
           />
         </div>

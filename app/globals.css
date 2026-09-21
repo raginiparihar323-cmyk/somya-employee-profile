@@ -96,9 +96,10 @@ button {
 ========================================================= */
 
 .header-logo {
-  width: 105px;
-  height: 105px;
-  flex: 0 0 105px;
+  width: 85px;
+  height: 85px;
+
+  flex: 0 0 85px;
 
   display: flex;
   align-items: center;
@@ -107,24 +108,24 @@ button {
   overflow: hidden;
 
   background: transparent;
-
-  transform: translateX(20px);
-
-  animation: elegantLogoIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .header-logo img {
-  width: 105px;
-  height: 105px;
+  width: 85px;
+  height: 85px;
+
   object-fit: contain;
+  object-position: center;
+
   display: block;
+
+  transform: scale(1.08);
+
   mix-blend-mode: darken;
-  transform: scale(1.15);
-  transition: transform 0.5s ease;
 }
 
 .header-logo:hover img {
-  transform: scale(1.22);
+  transform: scale(1.12);
 }
 
 
@@ -146,7 +147,6 @@ button {
   gap: 6px;
 
   overflow: visible;
-  transform: translateX(55px);
 }
 
 
@@ -157,7 +157,7 @@ button {
 .brand-somya {
   font-family: "Playfair Display", serif;
 
-  font-size: 44px;
+  font-size: 70px;
 
   line-height: 0.9;
 
@@ -180,7 +180,7 @@ button {
 .brand-innovations {
   font-family: "DM Sans", sans-serif;
 
-  font-size: 11px;
+  font-size: 30px;
 
   line-height: 1;
 
@@ -317,7 +317,7 @@ button {
 .designation {
   margin-top: 28px;
 
-  font-size: 25px;
+  font-size: 12px;
 
   letter-spacing: 3px;
 
@@ -332,7 +332,7 @@ button {
 .company-name {
   margin-top: 7px;
 
-  font-size: 22px;
+  font-size: 11px;
 
   letter-spacing: 2px;
 
@@ -352,7 +352,7 @@ button {
 
   gap: 10px;
 
-  margin-top: 80px;
+  margin-top: 30px;
 }
 
 .primary-button,
@@ -363,7 +363,7 @@ button {
 
   text-decoration: none;
 
-  font-size: 18px;
+  font-size: 10px;
 
   letter-spacing: 2px;
 
@@ -437,7 +437,7 @@ button {
 }
 
 .section-label {
-  font-size: 18px;
+  font-size: 9px;
 
   letter-spacing: 3px;
 
@@ -506,7 +506,7 @@ button {
 }
 
 .info-row span {
-  font-size: 16px;
+  font-size: 9px;
 
   letter-spacing: 2px;
 
@@ -622,7 +622,7 @@ button {
 }
 
 .social-link small {
-  font-size: 18px;
+  font-size: 8px;
 
   letter-spacing: 2px;
 
@@ -632,7 +632,7 @@ button {
 }
 
 .social-link span {
-  font-size: 18px;
+  font-size: 12px;
 
   font-weight: 600;
 
@@ -751,7 +751,7 @@ button {
 }
 
 .visit-website-content small {
-  font-size: 18px;
+  font-size: 8px;
 
   letter-spacing: 3px;
 }
@@ -842,7 +842,7 @@ button {
 }
 
 .verification-text strong {
-  font-size: 20px;
+  font-size: 11px;
 
   letter-spacing: 1.5px;
 
@@ -850,7 +850,7 @@ button {
 }
 
 .verification-text p {
-  font-size: 17px;
+  font-size: 10px;
 
   line-height: 1.5;
 
@@ -906,7 +906,7 @@ footer {
 }
 
 footer h3 {
-  font-size: 25px;
+  font-size: 14px;
 
   letter-spacing: 3px;
 
@@ -917,7 +917,7 @@ footer h3 {
 }
 
 footer p {
-  font-size: 17px;
+  font-size: 8px;
 
   letter-spacing: 2px;
 
@@ -930,7 +930,7 @@ footer p {
 }
 
 footer small {
-  font-size: 15px;
+  font-size: 8px;
 
   color: #A8998B;
 
@@ -1182,17 +1182,20 @@ footer small {
   }
 
   .header-logo {
-    width: 82px;
-    height: 82px;
+    width: 70px;
+    height: 70px;
 
-    flex-basis: 82px;
+    flex-basis: 70px;
   }
 
   .header-logo img {
-    width: 82px;
-    height: 82px;
+    width: 70px;
+    height: 70px;
 
-    transform: scale(1.15);
+    object-fit: cover;
+    object-position: left center;
+
+    transform: scale(1.08);
   }
 
   .brand-somya {
@@ -1273,21 +1276,5 @@ footer small {
     scroll-behavior: auto !important;
 
     transition-duration: 0.01ms !important;
-  }
-}
-@keyframes elegantLogoIn {
-  0% {
-    opacity: 0;
-    transform: translateX(20px) translateY(-12px) scale(0.94);
-  }
-
-  60% {
-    opacity: 1;
-    transform: translateX(20px) translateY(2px) scale(1.02);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateX(20px) translateY(0) scale(1);
   }
 }
