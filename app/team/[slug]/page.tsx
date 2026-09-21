@@ -1,14 +1,89 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+
+type SocialLink = {
+  platform: string;
+  label: string;
+  url: string;
+  display_order: number;
+};
+
+type Employee = {
+  employee_id: string;
+  name: string;
+  slug: string;
+  photo_url: string;
+  designation: string;
+  department: string;
+  location: string;
+  joined_date: string;
+  bio: string;
+  email: string;
+  phone: string;
+  phone_country_code: string;
+  show_email: boolean;
+  show_phone: boolean;
+  status: "active" | "inactive";
+  social_links: SocialLink[];
+};
 
 export default function Home() {
-  const [copied, setCopied] = useState("");
+  const params = useParams();
 
-  const email = "nisthajain609@gmail.com";
-  const phoneNumber = "8279413939";
+  const slug = params.slug as string;
 
-  const copyText = async (text: string, type: string) => {
+  const [employee, setEmployee] =
+    useState<Employee | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [copied, setCopied] =
+    useState("");
+
+  useEffect(() => {
+    const loadEmployee = async () => {
+      try {
+        const response = await fetch(
+          `/api/employees?slug=${encodeURIComponent(slug)}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          setEmployee(null);
+          return;
+        }
+
+        const data = await response.json();
+
+        setEmployee(data);
+
+      } catch (error) {
+        console.error(
+          "Failed to load employee:",
+          error
+        );
+
+        setEmployee(null);
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (slug) {
+      loadEmployee();
+    }
+  }, [slug]);
+
+  const copyText = async (
+    text: string,
+    type: string
+  ) => {
     try {
       await navigator.clipboard.writeText(text);
 
@@ -17,10 +92,81 @@ export default function Home() {
       setTimeout(() => {
         setCopied("");
       }, 1800);
+
     } catch {
-      window.prompt(`Copy ${type}:`, text);
+      window.prompt(
+        `Copy ${type}:`,
+        text
+      );
     }
   };
+
+  if (loading) {
+    return (
+      <main className="profile-page">
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "14px",
+            letterSpacing: "2px",
+          }}
+        >
+          LOADING PROFILE...
+        </div>
+      </main>
+    );
+  }
+
+  if (!employee) {
+    return (
+      <main className="profile-page">
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            padding: "30px",
+          }}
+        >
+          <h1>Employee Not Found</h1>
+
+          <p>
+            This employee profile does not exist
+            or has been removed.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  const linkedin =
+    employee.social_links?.find(
+      (link) =>
+        link.platform === "linkedin"
+    );
+
+  const instagram =
+    employee.social_links?.find(
+      (link) =>
+        link.platform === "instagram"
+    );
+
+  const otherSocialLinks =
+    employee.social_links?.filter(
+      (link) =>
+        link.url &&
+        link.platform !== "linkedin" &&
+        link.platform !== "instagram"
+    ) || [];
+
+  const fullPhone =
+    `${employee.phone_country_code || "+91"}${employee.phone}`;
 
   return (
     <main className="profile-page">
@@ -46,26 +192,49 @@ export default function Home() {
         </p>
 
         <h1>
-          NISTHA
-          <br />
-          JAIN
+          {employee.name
+            .trim()
+            .split(/\s+/)
+            .map((word, index) => (
+              <span key={index}>
+                {index > 0 && <br />}
+                {word.toUpperCase()}
+              </span>
+            ))}
         </h1>
 
         <div className="hero-line"></div>
 
         <div className="profile-photo">
-          <img
-            src="/nistha.jpeg"
-            alt="Nistha Jain"
-          />
+
+          {employee.photo_url ? (
+            <img
+              src={employee.photo_url}
+              alt={employee.name}
+            />
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#E9E4DE",
+                fontSize: "30px",
+                fontWeight: 700,
+              }}
+            >
+              {employee.name
+                .charAt(0)
+                .toUpperCase()}
+            </div>
+          )}
+
         </div>
 
         <p className="designation">
-          INNOVATION EXECUTIVE
-        </p>
-
-        <p className="company-name">
-          SOMYA INNOVATIONS
+          {employee.designation.toUpperCase()}
         </p>
 
         <div className="hero-buttons">
@@ -88,6 +257,7 @@ export default function Home() {
 
       </section>
 
+
       {/* ================= CONNECT ================= */}
 
       <section
@@ -103,121 +273,148 @@ export default function Home() {
 
           <div className="links">
 
+            {linkedin?.url && (
+              <a
+                href={linkedin.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link"
+              >
+                <div>
+                  <small>
+                    PROFESSIONAL
+                  </small>
 
-            {/* LINKEDIN */}
+                  <span>
+                    LINKEDIN
+                  </span>
+                </div>
 
-            <a
-              href="https://www.linkedin.com/in/nistha-jain-577ab0340/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-link"
-            >
+                <b>↗</b>
+              </a>
+            )}
 
-              <div>
-                <small>PROFESSIONAL</small>
-                <span>LINKEDIN</span>
-              </div>
+            {instagram?.url && (
+              <a
+                href={instagram.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link"
+              >
+                <div>
+                  <small>
+                    SOCIAL
+                  </small>
 
-              <b>↗</b>
+                  <span>
+                    INSTAGRAM
+                  </span>
+                </div>
 
-            </a>
+                <b>↗</b>
+              </a>
+            )}
 
+            {otherSocialLinks.map(
+              (link) => (
+                <a
+                  key={`${link.platform}-${link.display_order}`}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-link"
+                >
+                  <div>
+                    <small>
+                      SOCIAL
+                    </small>
 
-            {/* INSTAGRAM */}
+                    <span>
+                      {link.label ||
+                        link.platform.toUpperCase()}
+                    </span>
+                  </div>
 
-            <a
-              href="https://www.instagram.com/niissssh/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-link"
-            >
+                  <b>↗</b>
+                </a>
+              )
+            )}
 
-              <div>
-                <small>SOCIAL</small>
-                <span>INSTAGRAM</span>
-              </div>
+            {employee.show_email &&
+              employee.email && (
+                <button
+                  type="button"
+                  className="social-link contact-button"
+                  onClick={() =>
+                    copyText(
+                      employee.email,
+                      "EMAIL"
+                    )
+                  }
+                >
+                  <div>
+                    <small>
+                      {copied === "EMAIL"
+                        ? "COPIED"
+                        : "EMAIL"}
+                    </small>
 
-              <b>↗</b>
+                    <span>
+                      {employee.email}
+                    </span>
+                  </div>
 
-            </a>
+                  <b>
+                    {copied === "EMAIL"
+                      ? "✓"
+                      : "↗"}
+                  </b>
+                </button>
+              )}
 
+            {employee.show_phone &&
+              employee.phone && (
+                <button
+                  type="button"
+                  className="social-link contact-button"
+                  onClick={() => {
+                    copyText(
+                      fullPhone,
+                      "PHONE"
+                    );
 
-            {/* EMAIL */}
+                    window.location.href =
+                      `tel:${fullPhone}`;
+                  }}
+                >
+                  <div>
+                    <small>
+                      {copied === "PHONE"
+                        ? "COPIED"
+                        : "PHONE NUMBER"}
+                    </small>
 
-            <button
-              type="button"
-              className="social-link contact-button"
-              onClick={() => copyText(email, "EMAIL")}
-            >
+                    <span>
+                      {employee.phone_country_code ||
+                        "+91"}{" "}
+                      {employee.phone}
+                    </span>
+                  </div>
 
-              <div>
-
-                <small>
-                  {copied === "EMAIL"
-                    ? "COPIED"
-                    : "EMAIL"}
-                </small>
-
-                <span>
-                  {email}
-                </span>
-
-              </div>
-
-              <b>
-                {copied === "EMAIL"
-                  ? "✓"
-                  : "↗"}
-              </b>
-
-            </button>
-
-
-            {/* PHONE */}
-
-            <button
-              type="button"
-              className="social-link contact-button"
-              onClick={() => {
-
-                copyText(
-                  phoneNumber,
-                  "PHONE"
-                );
-
-                window.location.href =
-                  `tel:+91${phoneNumber}`;
-
-              }}
-            >
-
-              <div>
-
-                <small>
-                  {copied === "PHONE"
-                    ? "COPIED"
-                    : "PHONE"}
-                </small>
-
-                <span>
-                  +91 {phoneNumber}
-                </span>
-
-              </div>
-
-              <b>
-                {copied === "PHONE"
-                  ? "✓"
-                  : "↗"}
-              </b>
-
-            </button>
+                  <b>
+                    {copied === "PHONE"
+                      ? "✓"
+                      : "↗"}
+                  </b>
+                </button>
+              )}
 
           </div>
 
         </div>
 
       </section>
+
 
       {/* ================= PROFESSIONAL INFORMATION ================= */}
 
@@ -235,26 +432,86 @@ export default function Home() {
           <div className="info-card">
 
             <div className="info-row">
-              <span>EMPLOYEE ID</span>
-              <strong>SI-IE-1023</strong>
+              <span>
+                EMPLOYEE ID
+              </span>
+
+              <strong>
+                {employee.employee_id}
+              </strong>
             </div>
 
             <div className="info-row">
-              <span>ROLE</span>
-              <strong>Innovation Executive</strong>
+              <span>
+                ROLE
+              </span>
+
+              <strong>
+                {employee.designation}
+              </strong>
             </div>
 
             <div className="info-row">
-              <span>DEPARTMENT</span>
-              <strong>Innovation &amp; Strategy</strong>
+              <span>
+                DEPARTMENT
+              </span>
+
+              <strong>
+                {employee.department}
+              </strong>
             </div>
 
             <div className="info-row">
-              <span>LOCATION</span>
-              <strong>Gwalior, India</strong>
+              <span>
+                LOCATION
+              </span>
+
+              <strong>
+                {employee.location || "—"}
+              </strong>
             </div>
+
+            {employee.joined_date && (
+              <div className="info-row">
+                <span>
+                  JOINED
+                </span>
+
+                <strong>
+                  {employee.joined_date}
+                </strong>
+              </div>
+            )}
 
           </div>
+
+          {employee.bio && (
+            <div
+              style={{
+                marginTop: "25px",
+                lineHeight: 1.7,
+              }}
+            >
+              <p
+                className="section-label light-label"
+                style={{
+                  marginBottom: "10px",
+                }}
+              >
+                ABOUT
+              </p>
+
+              <p
+                style={{
+                  margin: 0,
+                  color: "#D8CEC3",
+                  fontSize: "14px",
+                }}
+              >
+                {employee.bio}
+              </p>
+            </div>
+          )}
 
         </div>
 
@@ -271,7 +528,6 @@ export default function Home() {
           rel="noopener noreferrer"
           className="visit-website-button"
         >
-
           <div className="visit-website-content">
 
             <small>
@@ -287,7 +543,6 @@ export default function Home() {
           <div className="visit-arrow">
             ↗
           </div>
-
         </a>
 
       </section>
@@ -310,8 +565,8 @@ export default function Home() {
             </strong>
 
             <p>
-              This is an official professional
-              profile of Somya Innovations.
+              This profile represents a verified
+              member of Somya Innovations.
             </p>
 
           </div>
@@ -326,12 +581,10 @@ export default function Home() {
       <footer>
 
         <div className="footer-logo">
-
           <img
             src="/somya-logo.jpeg"
             alt="Somya Innovations"
           />
-
         </div>
 
         <h3>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 
 type SocialLink = {
   platform: string;
@@ -21,17 +22,18 @@ type Employee = {
   bio: string;
   email: string;
   phone: string;
+  phone_country_code: string;
   show_email: boolean;
   show_phone: boolean;
   status: "active" | "inactive";
   social_links: SocialLink[];
 };
 
-const STORAGE_KEY = "somya_employees";
-
 export default function AdminDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [qrEmployee, setQrEmployee] =
+    useState<Employee | null>(null);
 
   const [form, setForm] = useState<Employee>({
     employee_id: "",
@@ -45,26 +47,55 @@ export default function AdminDashboard() {
     bio: "",
     email: "",
     phone: "",
+    phone_country_code: "+91",
     show_email: true,
     show_phone: true,
     status: "active",
     social_links: [],
   });
 
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [socialLinks, setSocialLinks] =
+    useState<SocialLink[]>([]);
 
-  // Load employees from browser storage
+  /* ================= LOAD EMPLOYEES ================= */
+
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const loadEmployees = async () => {
+      try {
+        const response = await fetch(
+          "/api/employees",
+          {
+            cache: "no-store",
+          }
+        );
 
-    if (saved) {
-      setEmployees(JSON.parse(saved));
-    }
+        if (!response.ok) {
+          throw new Error(
+            "Failed to load employees"
+          );
+        }
+
+        const data = await response.json();
+
+        setEmployees(data);
+      } catch (error) {
+        console.error(
+          "Failed to load employees:",
+          error
+        );
+      }
+    };
+
+    loadEmployees();
   }, []);
+
+  /* ================= FORM CHANGE ================= */
 
   const handleChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      HTMLInputElement |
+        HTMLTextAreaElement |
+        HTMLSelectElement
     >
   ) => {
     const { name, value } = e.target;
@@ -75,7 +106,8 @@ export default function AdminDashboard() {
     }));
   };
 
-  // Photo upload
+  /* ================= PHOTO ================= */
+
   const handlePhoto = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -95,6 +127,8 @@ export default function AdminDashboard() {
     reader.readAsDataURL(file);
   };
 
+  /* ================= SOCIAL LINKS ================= */
+
   const addSocialLink = () => {
     setSocialLinks((previous) => [
       ...previous,
@@ -102,7 +136,8 @@ export default function AdminDashboard() {
         platform: "linkedin",
         label: "LinkedIn",
         url: "",
-        display_order: previous.length + 1,
+        display_order:
+          previous.length + 1,
       },
     ]);
   };
@@ -127,11 +162,17 @@ export default function AdminDashboard() {
     );
   };
 
-  const removeSocialLink = (index: number) => {
+  const removeSocialLink = (
+    index: number
+  ) => {
     setSocialLinks((previous) =>
-      previous.filter((_, i) => i !== index)
+      previous.filter(
+        (_, i) => i !== index
+      )
     );
   };
+
+  /* ================= RESET FORM ================= */
 
   const resetForm = () => {
     setForm({
@@ -146,6 +187,7 @@ export default function AdminDashboard() {
       bio: "",
       email: "",
       phone: "",
+      phone_country_code: "+91",
       show_email: true,
       show_phone: true,
       status: "active",
@@ -155,49 +197,152 @@ export default function AdminDashboard() {
     setSocialLinks([]);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /* ================= SAVE EMPLOYEE ================= */
+
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
+
+    const cleanSlug = form.slug
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+
+    if (!form.name.trim()) {
+      alert("Please enter employee name.");
+      return;
+    }
+
+    if (!cleanSlug) {
+      alert(
+        "Please enter a slug, example: ragini-sharma"
+      );
+      return;
+    }
 
     const newEmployee: Employee = {
       ...form,
+      name: form.name.trim(),
+      slug: cleanSlug,
       social_links: socialLinks,
     };
 
-    const updatedEmployees = [
-      ...employees,
-      newEmployee,
-    ];
+    try {
+      const response = await fetch(
+        "/api/employees",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify(
+            newEmployee
+          ),
+        }
+      );
 
-    setEmployees(updatedEmployees);
+      const result =
+        await response.json();
 
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(updatedEmployees)
-    );
+      if (!response.ok) {
+        alert(
+          result.error ||
+            "Could not save employee."
+        );
+        return;
+      }
 
-    resetForm();
-    setShowForm(false);
+      const updatedEmployees = [
+        ...employees,
+        result,
+      ];
 
-    alert("Employee added successfully!");
+      setEmployees(
+        updatedEmployees
+      );
+
+      resetForm();
+      setShowForm(false);
+
+      setQrEmployee(result);
+
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Could not connect to employee server."
+      );
+    }
   };
 
-  const deleteEmployee = (slug: string) => {
-    const updatedEmployees = employees.filter(
-      (employee) => employee.slug !== slug
-    );
+  /* ================= DELETE ================= */
 
-    setEmployees(updatedEmployees);
+  const deleteEmployee = async (
+    slug: string
+  ) => {
+    const confirmDelete =
+      window.confirm(
+        "Are you sure you want to delete this employee?"
+      );
 
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(updatedEmployees)
-    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(
+        `/api/employees?slug=${encodeURIComponent(
+          slug
+        )}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Could not delete employee"
+        );
+      }
+
+      const updatedEmployees =
+        employees.filter(
+          (employee) =>
+            employee.slug !== slug
+        );
+
+      setEmployees(
+        updatedEmployees
+      );
+
+      if (
+        qrEmployee?.slug === slug
+      ) {
+        setQrEmployee(null);
+      }
+
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Could not delete employee."
+      );
+    }
+  };
+
+  /* ================= PRINT QR ================= */
+
+  const printQR = () => {
+    window.print();
   };
 
   return (
     <main style={styles.page}>
 
+      {/* ================= HEADER ================= */}
+
       <header style={styles.header}>
+
         <div>
           <p style={styles.company}>
             SOMYA INNOVATIONS
@@ -210,44 +355,66 @@ export default function AdminDashboard() {
 
         <button
           style={styles.addButton}
-          onClick={() => setShowForm(true)}
+          onClick={() =>
+            setShowForm(true)
+          }
         >
           + ADD EMPLOYEE
         </button>
+
       </header>
+
+
+      {/* ================= STATS ================= */}
 
       <section style={styles.stats}>
 
         <div style={styles.statCard}>
-          <span>Total Employees</span>
-          <strong>{employees.length}</strong>
+          <span>
+            Total Employees
+          </span>
+
+          <strong>
+            {employees.length}
+          </strong>
         </div>
 
         <div style={styles.statCard}>
-          <span>Active Employees</span>
+          <span>
+            Active Employees
+          </span>
+
           <strong>
             {
               employees.filter(
                 (employee) =>
-                  employee.status === "active"
+                  employee.status ===
+                  "active"
               ).length
             }
           </strong>
         </div>
 
         <div style={styles.statCard}>
-          <span>Inactive Employees</span>
+          <span>
+            Inactive Employees
+          </span>
+
           <strong>
             {
               employees.filter(
                 (employee) =>
-                  employee.status === "inactive"
+                  employee.status ===
+                  "inactive"
               ).length
             }
           </strong>
         </div>
 
       </section>
+
+
+      {/* ================= EMPLOYEES ================= */}
 
       <section style={styles.card}>
 
@@ -260,7 +427,10 @@ export default function AdminDashboard() {
         {employees.length === 0 ? (
 
           <div style={styles.empty}>
-            <h3>No employees added yet</h3>
+
+            <h3>
+              No employees added yet
+            </h3>
 
             <p>
               Add your first employee profile.
@@ -268,77 +438,133 @@ export default function AdminDashboard() {
 
             <button
               style={styles.addButton}
-              onClick={() => setShowForm(true)}
+              onClick={() =>
+                setShowForm(true)
+              }
             >
               + ADD FIRST EMPLOYEE
             </button>
+
           </div>
 
         ) : (
 
           <div style={styles.employeeList}>
 
-            {employees.map((employee) => (
+            {employees.map(
+              (employee) => (
 
-              <div
-                key={employee.slug}
-                style={styles.employeeCard}
-              >
-
-                {employee.photo_url && (
-                  <img
-                    src={employee.photo_url}
-                    alt={employee.name}
-                    style={styles.employeePhoto}
-                  />
-                )}
-
-                <div style={{ flex: 1 }}>
-                  <strong>
-                    {employee.name}
-                  </strong>
-
-                  <p>
-                    {employee.designation}
-                  </p>
-
-                  <small>
-                    {employee.employee_id}
-                  </small>
-                </div>
-
-                <span
-                  style={{
-                    ...styles.status,
-                    background:
-                      employee.status === "active"
-                        ? "#DFF5E5"
-                        : "#F5E0E0",
-                  }}
-                >
-                  {employee.status}
-                </span>
-
-                <a
-                  href={`/team/${employee.slug}`}
-                  target="_blank"
-                  style={styles.viewButton}
-                >
-                  VIEW
-                </a>
-
-                <button
-                  style={styles.deleteButton}
-                  onClick={() =>
-                    deleteEmployee(employee.slug)
+                <div
+                  key={employee.slug}
+                  style={
+                    styles.employeeCard
                   }
                 >
-                  DELETE
-                </button>
 
-              </div>
+                  {employee.photo_url && (
+                    <img
+                      src={
+                        employee.photo_url
+                      }
+                      alt={
+                        employee.name
+                      }
+                      style={
+                        styles.employeePhoto
+                      }
+                    />
+                  )}
 
-            ))}
+                  <div
+                    style={{
+                      flex: 1,
+                    }}
+                  >
+
+                    <strong>
+                      {employee.name}
+                    </strong>
+
+                    <p>
+                      {
+                        employee.designation
+                      }
+                    </p>
+
+                    <small>
+                      {
+                        employee.employee_id
+                      }
+                    </small>
+
+                  </div>
+
+
+                  <span
+                    style={{
+                      ...styles.status,
+                      background:
+                        employee.status ===
+                        "active"
+                          ? "#DFF5E5"
+                          : "#F5E0E0",
+                    }}
+                  >
+                    {
+                      employee.status
+                    }
+                  </span>
+
+
+                  {/* VIEW */}
+
+                  <a
+                    href={`/team/${employee.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={
+                      styles.viewButton
+                    }
+                  >
+                    VIEW
+                  </a>
+
+
+                  {/* QR */}
+
+                  <button
+                    style={
+                      styles.qrButton
+                    }
+                    onClick={() =>
+                      setQrEmployee(
+                        employee
+                      )
+                    }
+                  >
+                    QR
+                  </button>
+
+
+                  {/* DELETE */}
+
+                  <button
+                    style={
+                      styles.deleteButton
+                    }
+                    onClick={() =>
+                      deleteEmployee(
+                        employee.slug
+                      )
+                    }
+                  >
+                    DELETE
+                  </button>
+
+                </div>
+
+              )
+            )}
 
           </div>
 
@@ -346,216 +572,483 @@ export default function AdminDashboard() {
 
       </section>
 
+
+      {/* ================= ADD EMPLOYEE MODAL ================= */}
+
       {showForm && (
 
         <div style={styles.overlay}>
 
           <div style={styles.modal}>
 
-            <div style={styles.modalHeader}>
+            <div
+              style={
+                styles.modalHeader
+              }
+            >
 
               <div>
-                <h2>Add New Employee</h2>
-                <p>Enter employee information</p>
+
+                <h2>
+                  Add New Employee
+                </h2>
+
+                <p>
+                  Enter employee information
+                </p>
+
               </div>
 
               <button
                 style={styles.close}
-                onClick={() => setShowForm(false)}
+                onClick={() =>
+                  setShowForm(false)
+                }
               >
                 ×
               </button>
 
             </div>
 
-            <form onSubmit={handleSubmit}>
 
-              <h3 style={styles.formSection}>
+            <form
+              onSubmit={
+                handleSubmit
+              }
+            >
+
+              {/* BASIC INFORMATION */}
+
+              <h3
+                style={
+                  styles.formSection
+                }
+              >
                 Basic Information
               </h3>
 
-              <div style={styles.formGrid}>
+
+              <div
+                style={
+                  styles.formGrid
+                }
+              >
 
                 <input
                   name="employee_id"
                   placeholder="Employee ID"
-                  value={form.employee_id}
-                  onChange={handleChange}
+                  value={
+                    form.employee_id
+                  }
+                  onChange={
+                    handleChange
+                  }
                   required
-                  style={styles.input}
+                  style={
+                    styles.input
+                  }
                 />
+
 
                 <input
                   name="name"
                   placeholder="Employee Name"
-                  value={form.name}
-                  onChange={handleChange}
+                  value={
+                    form.name
+                  }
+                  onChange={
+                    handleChange
+                  }
                   required
-                  style={styles.input}
+                  style={
+                    styles.input
+                  }
                 />
+
 
                 <input
                   name="slug"
-                  placeholder="Slug (example: rahul-sharma)"
-                  value={form.slug}
-                  onChange={handleChange}
+                  placeholder="Slug (example: ragini-sharma)"
+                  value={
+                    form.slug
+                  }
+                  onChange={
+                    handleChange
+                  }
                   required
-                  style={styles.input}
+                  style={
+                    styles.input
+                  }
                 />
+
 
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handlePhoto}
-                  style={styles.input}
+                  onChange={
+                    handlePhoto
+                  }
+                  style={
+                    styles.input
+                  }
                 />
+
 
                 <input
                   name="designation"
                   placeholder="Designation"
-                  value={form.designation}
-                  onChange={handleChange}
+                  value={
+                    form.designation
+                  }
+                  onChange={
+                    handleChange
+                  }
                   required
-                  style={styles.input}
+                  style={
+                    styles.input
+                  }
                 />
+
 
                 <input
                   name="department"
                   placeholder="Department"
-                  value={form.department}
-                  onChange={handleChange}
+                  value={
+                    form.department
+                  }
+                  onChange={
+                    handleChange
+                  }
                   required
-                  style={styles.input}
+                  style={
+                    styles.input
+                  }
                 />
+
 
                 <input
                   name="location"
                   placeholder="Location"
-                  value={form.location}
-                  onChange={handleChange}
-                  style={styles.input}
+                  value={
+                    form.location
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  style={
+                    styles.input
+                  }
                 />
+
 
                 <input
                   name="joined_date"
                   type="date"
-                  value={form.joined_date}
-                  onChange={handleChange}
-                  style={styles.input}
+                  value={
+                    form.joined_date
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  style={
+                    styles.input
+                  }
                 />
 
               </div>
 
+
+              {/* PHOTO PREVIEW */}
+
               {form.photo_url && (
                 <img
-                  src={form.photo_url}
+                  src={
+                    form.photo_url
+                  }
                   alt="Preview"
-                  style={styles.preview}
+                  style={
+                    styles.preview
+                  }
                 />
               )}
 
-              <h3 style={styles.formSection}>
+
+              {/* BIO */}
+
+              <h3
+                style={
+                  styles.formSection
+                }
+              >
                 Professional Bio
               </h3>
+
 
               <textarea
                 name="bio"
                 placeholder="Write a short professional bio..."
-                value={form.bio}
-                onChange={handleChange}
+                value={
+                  form.bio
+                }
+                onChange={
+                  handleChange
+                }
                 rows={5}
-                style={styles.textarea}
+                style={
+                  styles.textarea
+                }
               />
 
-              <h3 style={styles.formSection}>
+
+              {/* CONTACT */}
+
+              <h3
+                style={
+                  styles.formSection
+                }
+              >
                 Contact Information
               </h3>
 
-              <div style={styles.contactFields}>
+
+              <div
+                style={
+                  styles.contactFields
+                }
+              >
 
                 <input
                   name="email"
                   type="email"
                   placeholder="Email"
-                  value={form.email}
-                  onChange={handleChange}
-                  style={styles.input}
+                  value={
+                    form.email
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  style={
+                    styles.input
+                  }
                 />
 
-                <div style={styles.phoneField}>
-                  <span style={styles.phonePrefix}>
-                    +91
-                  </span>
+
+                {/* CHANGEABLE COUNTRY CODE */}
+
+                <div
+                  style={
+                    styles.phoneField
+                  }
+                >
+
+                  <select
+                    name="phone_country_code"
+                    value={
+                      form.phone_country_code
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    style={
+                      styles.countryCode
+                    }
+                  >
+
+                    <option value="+91">
+                      🇮🇳 +91 India
+                    </option>
+
+                    <option value="+1">
+                      🇺🇸 +1 USA / Canada
+                    </option>
+
+                    <option value="+44">
+                      🇬🇧 +44 UK
+                    </option>
+
+                    <option value="+971">
+                      🇦🇪 +971 UAE
+                    </option>
+
+                    <option value="+81">
+                      🇯🇵 +81 Japan
+                    </option>
+
+                    <option value="+82">
+                      🇰🇷 +82 South Korea
+                    </option>
+
+                    <option value="+49">
+                      🇩🇪 +49 Germany
+                    </option>
+
+                    <option value="+33">
+                      🇫🇷 +33 France
+                    </option>
+
+                    <option value="+61">
+                      🇦🇺 +61 Australia
+                    </option>
+
+                    <option value="+65">
+                      🇸🇬 +65 Singapore
+                    </option>
+
+                    <option value="+86">
+                      🇨🇳 +86 China
+                    </option>
+
+                    <option value="+7">
+                      🇷🇺 +7 Russia
+                    </option>
+
+                    <option value="+39">
+                      🇮🇹 +39 Italy
+                    </option>
+
+                    <option value="+34">
+                      🇪🇸 +34 Spain
+                    </option>
+
+                    <option value="+31">
+                      🇳🇱 +31 Netherlands
+                    </option>
+
+                    <option value="+41">
+                      🇨🇭 +41 Switzerland
+                    </option>
+
+                  </select>
+
 
                   <input
                     name="phone"
+                    type="tel"
                     placeholder="Phone Number"
-                    value={form.phone}
-                    onChange={handleChange}
-                    style={styles.phoneInput}
+                    value={
+                      form.phone
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    style={
+                      styles.phoneInput
+                    }
                   />
+
                 </div>
 
               </div>
 
-              <h3 style={styles.formSection}>
+
+              {/* VISIBILITY */}
+
+              <h3
+                style={
+                  styles.formSection
+                }
+              >
                 Contact Visibility
               </h3>
 
-              <label style={styles.checkbox}>
+
+              <label
+                style={
+                  styles.checkbox
+                }
+              >
+
                 <input
                   type="checkbox"
-                  checked={form.show_email}
+                  checked={
+                    form.show_email
+                  }
                   onChange={(e) =>
                     setForm({
                       ...form,
-                      show_email: e.target.checked,
+                      show_email:
+                        e.target
+                          .checked,
                     })
                   }
                 />
+
                 Show Email
+
               </label>
 
-              <label style={styles.checkbox}>
+
+              <label
+                style={
+                  styles.checkbox
+                }
+              >
+
                 <input
                   type="checkbox"
-                  checked={form.show_phone}
+                  checked={
+                    form.show_phone
+                  }
                   onChange={(e) =>
                     setForm({
                       ...form,
-                      show_phone: e.target.checked,
+                      show_phone:
+                        e.target
+                          .checked,
                     })
                   }
                 />
+
                 Show Phone
+
               </label>
 
-              <div style={styles.socialHeader}>
 
-                <h3 style={styles.formSection}>
+              {/* SOCIAL LINKS */}
+
+              <div
+                style={
+                  styles.socialHeader
+                }
+              >
+
+                <h3
+                  style={
+                    styles.formSection
+                  }
+                >
                   Social Links
                 </h3>
 
                 <button
                   type="button"
-                  style={styles.smallButton}
-                  onClick={addSocialLink}
+                  style={
+                    styles.smallButton
+                  }
+                  onClick={
+                    addSocialLink
+                  }
                 >
                   + ADD LINK
                 </button>
 
               </div>
 
+
               {socialLinks.map(
                 (link, index) => (
 
                   <div
                     key={index}
-                    style={styles.socialRow}
+                    style={
+                      styles.socialRow
+                    }
                   >
 
                     <select
-                      value={link.platform}
+                      value={
+                        link.platform
+                      }
                       onChange={(e) =>
                         updateSocialLink(
                           index,
@@ -563,8 +1056,11 @@ export default function AdminDashboard() {
                           e.target.value
                         )
                       }
-                      style={styles.input}
+                      style={
+                        styles.input
+                      }
                     >
+
                       <option value="linkedin">
                         LinkedIn
                       </option>
@@ -604,11 +1100,15 @@ export default function AdminDashboard() {
                       <option value="custom">
                         Custom Link
                       </option>
+
                     </select>
+
 
                     <input
                       placeholder="URL"
-                      value={link.url}
+                      value={
+                        link.url
+                      }
                       onChange={(e) =>
                         updateSocialLink(
                           index,
@@ -616,33 +1116,56 @@ export default function AdminDashboard() {
                           e.target.value
                         )
                       }
-                      style={styles.input}
+                      style={
+                        styles.input
+                      }
                     />
+
 
                     <button
                       type="button"
                       onClick={() =>
-                        removeSocialLink(index)
+                        removeSocialLink(
+                          index
+                        )
                       }
-                      style={styles.removeButton}
+                      style={
+                        styles.removeButton
+                      }
                     >
                       ×
                     </button>
 
                   </div>
+
                 )
               )}
 
-              <h3 style={styles.formSection}>
+
+              {/* STATUS */}
+
+              <h3
+                style={
+                  styles.formSection
+                }
+              >
                 Employee Status
               </h3>
 
+
               <select
                 name="status"
-                value={form.status}
-                onChange={handleChange}
-                style={styles.input}
+                value={
+                  form.status
+                }
+                onChange={
+                  handleChange
+                }
+                style={
+                  styles.input
+                }
               >
+
                 <option value="active">
                   Active
                 </option>
@@ -650,11 +1173,17 @@ export default function AdminDashboard() {
                 <option value="inactive">
                   Inactive
                 </option>
+
               </select>
+
+
+              {/* SAVE */}
 
               <button
                 type="submit"
-                style={styles.saveButton}
+                style={
+                  styles.saveButton
+                }
               >
                 SAVE EMPLOYEE
               </button>
@@ -664,6 +1193,96 @@ export default function AdminDashboard() {
           </div>
 
         </div>
+
+      )}
+
+
+      {/* ================= QR MODAL ================= */}
+
+      {qrEmployee && (
+
+        <div
+          style={
+            styles.overlay
+          }
+        >
+
+          <div
+            style={
+              styles.qrModal
+            }
+          >
+
+            <button
+              style={
+                styles.close
+              }
+              onClick={() =>
+                setQrEmployee(
+                  null
+                )
+              }
+            >
+              ×
+            </button>
+
+
+            <h2>
+              {qrEmployee.name}
+            </h2>
+
+
+            <p
+              style={
+                styles.qrSubtitle
+              }
+            >
+              Scan this QR code to view
+              employee profile
+            </p>
+
+
+            <div
+              style={
+                styles.qrBox
+              }
+            >
+
+              <QRCodeSVG
+                value={`${window.location.origin}/team/${qrEmployee.slug}`}
+                size={220}
+                level="H"
+                includeMargin={true}
+              />
+
+            </div>
+
+
+            <p
+              style={
+                styles.qrUrl
+              }
+            >
+              {window.location.origin}/team/
+              {qrEmployee.slug}
+            </p>
+
+
+            <button
+              style={
+                styles.saveButton
+              }
+              onClick={
+                printQR
+              }
+            >
+              PRINT QR
+            </button>
+
+          </div>
+
+        </div>
+
       )}
 
     </main>
@@ -673,7 +1292,10 @@ export default function AdminDashboard() {
 
 /* ================= STYLES ================= */
 
-const styles: Record<string, React.CSSProperties> = {
+const styles: Record<
+  string,
+  React.CSSProperties
+> = {
 
   page: {
     minHeight: "100vh",
@@ -718,7 +1340,8 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: "1200px",
     margin: "0 auto 30px",
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
+    gridTemplateColumns:
+      "repeat(3, 1fr)",
     gap: "18px",
   },
 
@@ -746,7 +1369,8 @@ const styles: Record<string, React.CSSProperties> = {
   empty: {
     textAlign: "center",
     padding: "60px 20px",
-    border: "1px dashed #C8B9AA",
+    border:
+      "1px dashed #C8B9AA",
   },
 
   employeeList: {
@@ -757,7 +1381,8 @@ const styles: Record<string, React.CSSProperties> = {
 
   employeeCard: {
     padding: "15px",
-    border: "1px solid #D8CEC3",
+    border:
+      "1px solid #D8CEC3",
     display: "flex",
     alignItems: "center",
     gap: "15px",
@@ -784,6 +1409,18 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: "none",
     fontSize: "12px",
     fontWeight: 700,
+    border: "none",
+    cursor: "pointer",
+  },
+
+  qrButton: {
+    padding: "8px 12px",
+    background: "#B89F7A",
+    color: "#FFFFFF",
+    border: "none",
+    fontSize: "12px",
+    fontWeight: 700,
+    cursor: "pointer",
   },
 
   deleteButton: {
@@ -798,7 +1435,8 @@ const styles: Record<string, React.CSSProperties> = {
   overlay: {
     position: "fixed",
     inset: 0,
-    background: "rgba(0,0,0,0.55)",
+    background:
+      "rgba(0,0,0,0.55)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -817,7 +1455,8 @@ const styles: Record<string, React.CSSProperties> = {
 
   modalHeader: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
     marginBottom: "25px",
   },
 
@@ -836,24 +1475,29 @@ const styles: Record<string, React.CSSProperties> = {
 
   formGrid: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns:
+      "1fr 1fr",
     gap: "15px",
   },
 
   input: {
     width: "100%",
     padding: "13px",
-    border: "1px solid #C8B9AA",
+    border:
+      "1px solid #C8B9AA",
     fontSize: "14px",
     background: "#FFFFFF",
+    boxSizing: "border-box",
   },
 
   textarea: {
     width: "100%",
     padding: "13px",
-    border: "1px solid #C8B9AA",
+    border:
+      "1px solid #C8B9AA",
     fontSize: "14px",
     resize: "vertical",
+    boxSizing: "border-box",
   },
 
   preview: {
@@ -874,21 +1518,31 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     width: "100%",
-    border: "1px solid #C8B9AA",
+    border:
+      "1px solid #C8B9AA",
+    boxSizing: "border-box",
   },
 
-  phonePrefix: {
-    paddingLeft: "13px",
+  countryCode: {
+    height: "48px",
+    padding: "0 10px",
+    border: "none",
+    borderRight:
+      "1px solid #C8B9AA",
+    outline: "none",
+    background: "#FFFFFF",
     fontSize: "14px",
-    color: "#555",
+    minWidth: "155px",
   },
 
   phoneInput: {
     flex: 1,
-    padding: "13px 10px",
+    padding:
+      "13px 10px",
     border: "none",
     outline: "none",
     fontSize: "14px",
+    minWidth: 0,
   },
 
   checkbox: {
@@ -901,14 +1555,16 @@ const styles: Record<string, React.CSSProperties> = {
 
   socialHeader: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
     alignItems: "center",
     marginTop: "25px",
   },
 
   smallButton: {
     background: "#E9E4DE",
-    border: "1px solid #B89F7A",
+    border:
+      "1px solid #B89F7A",
     padding: "8px 12px",
     cursor: "pointer",
     fontWeight: 700,
@@ -916,7 +1572,8 @@ const styles: Record<string, React.CSSProperties> = {
 
   socialRow: {
     display: "grid",
-    gridTemplateColumns: "180px 1fr 40px",
+    gridTemplateColumns:
+      "180px 1fr 40px",
     gap: "10px",
     marginBottom: "10px",
   },
@@ -927,6 +1584,35 @@ const styles: Record<string, React.CSSProperties> = {
     border: "none",
     fontSize: "20px",
     cursor: "pointer",
+  },
+
+  qrModal: {
+    background: "#FFFFFF",
+    width: "100%",
+    maxWidth: "420px",
+    padding: "35px",
+    textAlign: "center",
+    position: "relative",
+  },
+
+  qrSubtitle: {
+    color: "#777",
+    fontSize: "14px",
+    marginBottom: "25px",
+  },
+
+  qrBox: {
+    display: "flex",
+    justifyContent: "center",
+    padding: "20px",
+    background: "#FFFFFF",
+  },
+
+  qrUrl: {
+    fontSize: "11px",
+    color: "#777",
+    wordBreak: "break-all",
+    marginTop: "15px",
   },
 
   saveButton: {
