@@ -13,12 +13,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nistha Jain | Somya Innovations",
+  title: "Somya Innovations",
   description:
-    "Official professional profile of Nistha Jain, Innovation Executive at Somya Innovations.",
+    "Official employee profile portal of Somya Innovations.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="en"

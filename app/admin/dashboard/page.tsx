@@ -31,11 +31,14 @@ type Employee = {
 };
 
 export default function AdminDashboard() {
+  useEffect(() => {
+    document.title = "Somya Innovations | Admin Dashboard";
+  }, []);
+
   const [showForm, setShowForm] = useState(false);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [qrEmployee, setQrEmployee] =
-    useState<Employee | null>(null);
+  const [qrEmployee, setQrEmployee] = useState<Employee | null>(null);
 
   const [form, setForm] = useState<Employee>({
     employee_id: "",

@@ -44,6 +44,8 @@ export default function Home() {
   const [copied, setCopied] =
     useState("");
 
+  /* ================= LOAD EMPLOYEE ================= */
+
   useEffect(() => {
     const loadEmployee = async () => {
       try {
@@ -79,6 +81,17 @@ export default function Home() {
     }
   }, [slug]);
 
+  /* ================= DYNAMIC BROWSER TITLE ================= */
+
+  useEffect(() => {
+    if (employee?.name) {
+      document.title =
+        `${employee.name} | Somya Innovations`;
+    }
+  }, [employee?.name]);
+
+  /* ================= COPY ================= */
+
   const copyText = async (
     text: string,
     type: string
@@ -99,6 +112,8 @@ export default function Home() {
     }
   };
 
+  /* ================= LOADING ================= */
+
   if (loading) {
     return (
       <main className="profile-page">
@@ -117,6 +132,8 @@ export default function Home() {
       </main>
     );
   }
+
+  /* ================= NOT FOUND ================= */
 
   if (!employee) {
     return (
@@ -143,6 +160,8 @@ export default function Home() {
     );
   }
 
+  /* ================= SOCIAL LINKS ================= */
+
   const linkedin =
     employee.social_links?.find(
       (link) =>
@@ -163,6 +182,8 @@ export default function Home() {
         link.platform !== "instagram"
     ) || [];
 
+  /* ================= PHONE ================= */
+
   const fullPhone =
     `${employee.phone_country_code || "+91"}${employee.phone}`;
 
@@ -172,6 +193,7 @@ export default function Home() {
       {/* ================= HEADER ================= */}
 
       <header className="header">
+
         <div className="header-brand">
 
           <div className="header-logo">
@@ -182,6 +204,7 @@ export default function Home() {
           </div>
 
           <div className="header-brand-name">
+
             <span className="brand-somya">
               SOMYA
             </span>
@@ -189,9 +212,11 @@ export default function Home() {
             <span className="brand-innovations">
               INNOVATIONS
             </span>
+
           </div>
 
         </div>
+
       </header>
 
 
@@ -216,11 +241,14 @@ export default function Home() {
         <div className="profile-photo">
 
           {employee.photo_url ? (
+
             <img
               src={employee.photo_url}
               alt={employee.name}
             />
+
           ) : (
+
             <div
               style={{
                 width: "100%",
@@ -237,6 +265,7 @@ export default function Home() {
                 .charAt(0)
                 .toUpperCase()}
             </div>
+
           )}
 
         </div>
@@ -281,6 +310,8 @@ export default function Home() {
 
           <div className="links">
 
+            {/* LINKEDIN */}
+
             {linkedin?.url && (
               <a
                 href={linkedin.url}
@@ -289,6 +320,7 @@ export default function Home() {
                 className="social-link"
               >
                 <div>
+
                   <small>
                     PROFESSIONAL
                   </small>
@@ -296,11 +328,16 @@ export default function Home() {
                   <span>
                     LINKEDIN
                   </span>
+
                 </div>
 
                 <b>↗</b>
+
               </a>
             )}
+
+
+            {/* INSTAGRAM */}
 
             {instagram?.url && (
               <a
@@ -310,6 +347,7 @@ export default function Home() {
                 className="social-link"
               >
                 <div>
+
                   <small>
                     SOCIAL
                   </small>
@@ -317,11 +355,16 @@ export default function Home() {
                   <span>
                     INSTAGRAM
                   </span>
+
                 </div>
 
                 <b>↗</b>
+
               </a>
             )}
+
+
+            {/* OTHER SOCIAL LINKS */}
 
             {otherSocialLinks.map(
               (link) => (
@@ -332,7 +375,9 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="social-link"
                 >
+
                   <div>
+
                     <small>
                       SOCIAL
                     </small>
@@ -341,15 +386,21 @@ export default function Home() {
                       {link.label ||
                         link.platform.toUpperCase()}
                     </span>
+
                   </div>
 
                   <b>↗</b>
+
                 </a>
               )
             )}
 
+
+            {/* EMAIL */}
+
             {employee.show_email &&
               employee.email && (
+
                 <button
                   type="button"
                   className="social-link contact-button"
@@ -360,7 +411,9 @@ export default function Home() {
                     )
                   }
                 >
+
                   <div>
+
                     <small>
                       {copied === "EMAIL"
                         ? "COPIED"
@@ -370,6 +423,7 @@ export default function Home() {
                     <span>
                       {employee.email}
                     </span>
+
                   </div>
 
                   <b>
@@ -377,15 +431,22 @@ export default function Home() {
                       ? "✓"
                       : "↗"}
                   </b>
+
                 </button>
+
               )}
+
+
+            {/* PHONE */}
 
             {employee.show_phone &&
               employee.phone && (
+
                 <button
                   type="button"
                   className="social-link contact-button"
                   onClick={() => {
+
                     copyText(
                       fullPhone,
                       "PHONE"
@@ -395,7 +456,9 @@ export default function Home() {
                       `tel:${fullPhone}`;
                   }}
                 >
+
                   <div>
+
                     <small>
                       {copied === "PHONE"
                         ? "COPIED"
@@ -407,6 +470,7 @@ export default function Home() {
                         "+91"}{" "}
                       {employee.phone}
                     </span>
+
                   </div>
 
                   <b>
@@ -414,7 +478,9 @@ export default function Home() {
                       ? "✓"
                       : "↗"}
                   </b>
+
                 </button>
+
               )}
 
           </div>
@@ -440,6 +506,7 @@ export default function Home() {
           <div className="info-card">
 
             <div className="info-row">
+
               <span>
                 EMPLOYEE ID
               </span>
@@ -447,9 +514,12 @@ export default function Home() {
               <strong>
                 {employee.employee_id}
               </strong>
+
             </div>
 
+
             <div className="info-row">
+
               <span>
                 ROLE
               </span>
@@ -457,9 +527,12 @@ export default function Home() {
               <strong>
                 {employee.designation}
               </strong>
+
             </div>
 
+
             <div className="info-row">
+
               <span>
                 DEPARTMENT
               </span>
@@ -467,9 +540,12 @@ export default function Home() {
               <strong>
                 {employee.department || "—"}
               </strong>
+
             </div>
 
+
             <div className="info-row">
+
               <span>
                 LOCATION
               </span>
@@ -477,10 +553,14 @@ export default function Home() {
               <strong>
                 {employee.location || "—"}
               </strong>
+
             </div>
 
+
             {employee.joined_date && (
+
               <div className="info-row">
+
                 <span>
                   JOINED
                 </span>
@@ -488,18 +568,25 @@ export default function Home() {
                 <strong>
                   {employee.joined_date}
                 </strong>
+
               </div>
+
             )}
 
           </div>
 
+
+          {/* ABOUT */}
+
           {employee.bio && (
+
             <div
               style={{
                 marginTop: "25px",
                 lineHeight: 1.7,
               }}
             >
+
               <p
                 className="section-label light-label"
                 style={{
@@ -518,7 +605,9 @@ export default function Home() {
               >
                 {employee.bio}
               </p>
+
             </div>
+
           )}
 
         </div>
@@ -536,6 +625,7 @@ export default function Home() {
           rel="noopener noreferrer"
           className="visit-website-button"
         >
+
           <div className="visit-website-content">
 
             <small>
@@ -551,6 +641,7 @@ export default function Home() {
           <div className="visit-arrow">
             ↗
           </div>
+
         </a>
 
       </section>
@@ -559,6 +650,7 @@ export default function Home() {
       {/* ================= VERIFIED ================= */}
 
       {employee.verified !== false && (
+
         <section className="verification-section">
 
           <div className="verification-inner">
@@ -583,6 +675,7 @@ export default function Home() {
           </div>
 
         </section>
+
       )}
 
 
@@ -591,10 +684,12 @@ export default function Home() {
       <footer>
 
         <div className="footer-logo">
+
           <img
             src="/somyain.jpeg"
             alt="Somya Innovations"
           />
+
         </div>
 
         <h3>
