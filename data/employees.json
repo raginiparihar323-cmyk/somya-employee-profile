@@ -106,10 +106,10 @@
     "joined_date": "",
     "bio": "",
     "email": "anshulsikarwar84@gmail.com",
-    "phone": "",
+    "phone": "6232058656",
     "phone_country_code": "+91",
     "show_email": true,
-    "show_phone": false,
+    "show_phone": true,
     "status": "active",
     "social_links": [
       {
@@ -135,7 +135,7 @@
     "phone": "6232058656",
     "phone_country_code": "+91",
     "show_email": true,
-    "show_phone": false,
+    "show_phone": true,
     "status": "active",
     "social_links": [
       {
