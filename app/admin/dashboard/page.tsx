@@ -399,6 +399,31 @@ export default function AdminDashboard() {
     window.print();
   };
 
+  /* ================= DOWNLOAD QR ================= */
+
+  const downloadQR = () => {
+    const svg = document.getElementById("employee-qr");
+
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([svgData], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `${qrEmployee?.name || "employee"}-QR.svg`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <main className="admin-page" style={styles.page}>
 
@@ -1366,6 +1391,7 @@ export default function AdminDashboard() {
             >
 
               <QRCodeSVG
+                id="employee-qr"
                 value={`${window.location.origin}/team/${qrEmployee.slug}`}
                 size={220}
                 level="H"
@@ -1388,6 +1414,17 @@ export default function AdminDashboard() {
             <button
               style={
                 styles.saveButton
+              }
+              onClick={
+                downloadQR
+              }
+            >
+              DOWNLOAD QR
+            </button>
+
+            <button
+              style={
+                styles.cancelButton
               }
               onClick={
                 printQR
